@@ -1,0 +1,12 @@
+id: 74406460-05fb-4057-b646-f3f8c1e5d56f
+refId: CIS
+name:  CIS Amazon Web Services Foundations
+description: >
+  The CIS Security Benchmarks program provides well-defined, unbiased, consensus-based
+  industry best practices to help organizations assess and improve their security
+enabled: true
+rules:
+  - d964fe48-3465-4c5d-9e62-865055eca9e7
+  - 51d850c8-0a3b-499a-9059-2eb5484e668f
+  - a2c83730-a2eb-40ce-a378-846577a0f4a2
+version: 0.1.3
