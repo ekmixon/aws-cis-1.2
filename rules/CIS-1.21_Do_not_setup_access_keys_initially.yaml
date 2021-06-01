@@ -13,10 +13,12 @@ enabled: true
 sql: >
   SELECT arn
   FROM public.awsiamcredentialsreport
-  WHERE configuration->>'access_key_1_last_used_date' IS NULL
-    OR configuration->>'access_key_2_last_used_date' IS NULL
-    OR configuration->>'access_key_1_last_used_date' = 'N/A'
-    OR configuration->>'access_key_2_last_used_date' = 'N/A';
+  WHERE (configuration->>'access_key_1_active' = 'true'
+         AND (configuration->>'access_key_1_last_used_date' IS NULL
+              OR configuration->>'access_key_1_last_used_date' = 'N/A'))
+    OR (configuration->>'access_key_2_active' = 'true'
+        AND (configuration->>'access_key_2_last_used_date' IS NULL
+             OR configuration->>'access_key_2_last_used_date' = 'N/A'));
 remediation: >
   Perform the following to delete access keys that do not pass the audit:
     1. Login to the AWS Management Console:
