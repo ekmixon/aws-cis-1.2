@@ -11,7 +11,7 @@ severity: high
 enabled: true
 sql: >
   SELECT arn
-  FROM public.awsiampolicy
+  FROM awsiampolicy
   WHERE resourceName = 'AWSSupportAccess'
     AND configuration->>'attachmentCount' = '0';
 remediation: >

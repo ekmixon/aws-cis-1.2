@@ -14,16 +14,16 @@ severity: high
 enabled: true
 sql: >
   SELECT arn
-  FROM public.awsiampolicy AS policies
+  FROM awsiampolicy AS policies
   LEFT JOIN
     (SELECT arn AS arn1,
             jsonb_array_elements((policies.supplementaryconfiguration->'attachedPolicies'->>'policyDocument')::JSONB->'Statement') AS statement1
-     FROM public.awsiampolicy policies
+     FROM awsiampolicy policies
      WHERE jsonb_typeof((policies.supplementaryconfiguration->'attachedPolicies'->>'policyDocument')::JSONB->'Statement') = 'array' ) multiple_statement_policies ON policies.arn = multiple_statement_policies.arn1
   LEFT JOIN
     (SELECT arn AS arn2,
             (policies.supplementaryconfiguration->'attachedPolicies'->>'policyDocument')::JSONB->'Statement' AS statement2
-     FROM public.awsiampolicy policies
+     FROM awsiampolicy policies
      WHERE jsonb_typeof((policies.supplementaryconfiguration->'attachedPolicies'->>'policyDocument')::JSONB->'Statement') = 'object' ) single_statement_policies ON policies.arn = single_statement_policies.arn2
   WHERE (statement1->>'Effect' = 'Allow'
          AND statement1->>'Action' = '*'
