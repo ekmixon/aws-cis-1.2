@@ -1,12 +1,13 @@
-id: f5a19267-05c2-41a0-a204-82cf01babb5e
-refId: CIS-3.1
+id: ec7c0bf0-1e75-40f0-a25d-073e939a05e1
+refId: CIS-3.2
 type: asset
 name: >
-  Ensure a log metric filter and alarm exist for unauthorized API calls
+  Ensure a log metric filter and alarm exist for Management Console sign-in without MFA
 description: >
   Real-time monitoring of API calls can be achieved by directing CloudTrail Logs to
   CloudWatch Logs and establishing corresponding metric filters and alarms. It is
-  recommended that a metric filter and alarm be established for unauthorized API calls.
+  recommended that a metric filter and alarm be established for console logins that are not
+  protected by multi-factor authentication (MFA).
 severity: high
 enabled: true
 sql: >
@@ -25,7 +26,7 @@ sql: >
     SELECT jsonb_array_elements(configuration->'metricTransformations') AS metric
     FROM awscloudwatchlogsmetricfilter, get_group_names
     WHERE configuration->>'logGroupName' = get_group_names.log_group_name
-      AND regexp_replace(configuration->>'filterPattern', '\s', '', 'g') LIKE regexp_replace('($.errorCode = "*UnauthorizedOperation") || ($.errorCode = "AccessDenied*")', '\s', '', 'g')
+      AND regexp_replace(configuration->>'filterPattern', '\s', '', 'g') LIKE regexp_replace(' ($.eventName = "ConsoleLogin") && ($.additionalEventData.MFAUsed != "Yes")', '\s', '', 'g')
   ),
   get_alarm_topic AS (
     SELECT regexp_replace(jsonb_array_elements(configuration->'alarmActions')::TEXT, '\"', '', 'g') AS topic_arn
@@ -51,32 +52,32 @@ sql: >
        WHERE subscribers_number = '0');
 remediation: >
   Perform the following to setup the metric filter, alarm, SNS topic, and subscription:
-    1. Create a metric filter based on filter pattern provided which checks for
-    unauthorized API calls and the <cloudtrail_log_group_name> taken from audit step 1.
+    1. Create a metric filter based on filter pattern provided which checks for AWS
+    Management Console sign-in without MFA and the <cloudtrail_log_group_name>
+    taken from audit step 1.
       aws logs put-metric-filter --log-group-name <cloudtrail_log_group_name> --
-      filter-name `<unauthorized_api_calls_metric>` --metric-transformations
-      metricName= `<unauthorized_api_calls_metric>` 
+      filter-name `<no_mfa_console_signin_metric>` --metric-transformations 
+      metricName= `<no_mfa_console_signin_metric>`
       ,metricNamespace='CISBenchmark',metricValue=1 --filter-pattern '{
-      ($.errorCode = "*UnauthorizedOperation") || ($.errorCode = "AccessDenied*")
-      }'
-    Note: You can choose your own metricName and metricNamespace strings. Using the same
-    metricNamespace for all Foundations Benchmark metrics will group them together.
-    2. Create an SNS topic that the alarm will notify
-      aws sns create-topic --name <sns_topic_name>
-    Note: you can execute this command once and then re-use the same topic for all
-    monitoring alarms.
-    3. Create an SNS subscription to the topic created in step 2
-      aws sns subscribe --topic-arn <sns_topic_arn> --protocol <protocol_for_sns> -
+      ($.eventName = "ConsoleLogin") && ($.additionalEventData.MFAUsed != "Yes") }'
+  Note: You can choose your own metricName and metricNamespace strings. Using the same
+  metricNamespace for all Foundations Benchmark metrics will group them together.
+  2. Create an SNS topic that the alarm will notify
+    aws sns create-topic --name <sns_topic_name>
+  Note: you can execute this command once and then re-use the same topic for all
+  monitoring alarms.
+  3. Create an SNS subscription to the topic created in step 2
+    aws sns subscribe --topic-arn <sns_topic_arn> --protocol <protocol_for_sns> -
     -notification-endpoint <sns_subscription_endpoints>
-    Note: you can execute this command once and then re-use the SNS subscription for all
-    monitoring alarms.
-    4. Create an alarm that is associated with the CloudWatch Logs Metric Filter created in
-    step 1 and an SNS topic created in step 2
-      aws cloudwatch put-metric-alarm --alarm-name
-      `<unauthorized_api_calls_alarm>` --metric-name
-      `<unauthorized_api_calls_metric>` --statistic Sum --period 300 --threshold 1
-      --comparison-operator GreaterThanOrEqualToThreshold --evaluation-periods 1 --
-      namespace 'CISBenchmark' --alarm-actions <sns_topic_arn>
+  Note: you can execute this command once and then re-use the SNS subscription for all
+  monitoring alarms.
+  4. Create an alarm that is associated with the CloudWatch Logs Metric Filter created in
+  step 1 and an SNS topic created in step 2
+    aws cloudwatch put-metric-alarm --alarm-name `<no_mfa_console_signin_alarm>`
+    --metric-name `<no_mfa_console_signin_metric>` --statistic Sum --period 300
+    --threshold 1 --comparison-operator GreaterThanOrEqualToThreshold --
+    evaluation-periods 1 --namespace 'CISBenchmark' --alarm-actions
+    <sns_topic_arn>
 remediationDocURLs:
-  - https://docs.openraven.com/remediations/log_metric_filter_and_alarm_for_unauthorized_API_calls
+  - https://docs.openraven.com/remediations/log_metric_filter_and_alarm_for_Management_Console_sign_in_without_MFA
 version: 0.1.3
