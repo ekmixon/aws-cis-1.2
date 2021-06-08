@@ -2,8 +2,8 @@ id: 8f0d6f07-5c32-4a25-8b25-6ca4c2198197
 refId: CIS-1.22
 type: asset
 name: >
-  Do not setup access keys during initial user setup for all IAM users
-  that have a console password
+  Ensure IAM policies that allow full "*:*" administrative privileges
+  are not created
 description: >
   IAM policies are the means by which privileges are granted to users, groups, or roles. It is
   recommended and considered a standard security advice to grant least privilege—that is,
@@ -55,5 +55,5 @@ remediation: >
     4. Detach the policy from all IAM Roles:
      aws iam detach-role-policy --role-name <iam_role> --policy-arn <policy_arn>
 remediationDocURLs:
-  - https://docs.openraven.com/remediations/delete_unused_access_keys
+  - https://docs.openraven.com/remediations/no_full_admin_privileges_IAM_policies_created
 version: 0.1.3
