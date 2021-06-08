@@ -16,7 +16,7 @@ sql: >
      FROM
       (SELECT arn,
           jsonb_array_elements(supplementaryConfiguration->'eventSelectors'->'eventSelectors') AS event_selector,
-          regexp_replace(regexp_replace(supplementaryConfiguration->'trailDetails'->'trail'->>'cloudWatchLogsLogGroupArn', '.*/', ''), ':\*', '') AS log_group_name
+          regexp_replace(regexp_replace(supplementaryConfiguration->'trailDetails'->'trail'->>'cloudWatchLogsLogGroupArn', '.*log-group:', ''), ':\*', '') AS log_group_name
       FROM awscloudtrailtrail
       WHERE supplementaryConfiguration->'trailDetails'->'trail'->'isMultiRegionTrail' = 'true' AND supplementaryConfiguration->'status'->'isLogging' = 'true') get_log_group_name_table
     WHERE event_selector->'includeManagementEvents' = 'true' AND event_selector->>'readWriteType' = 'All'
@@ -25,7 +25,7 @@ sql: >
     SELECT jsonb_array_elements(configuration->'metricTransformations') AS metric
     FROM awscloudwatchlogsmetricfilter, get_group_names
     WHERE configuration->>'logGroupName' = get_group_names.log_group_name
-      AND regexp_replace(configuration->>'filterPattern', '\s', '', 'g') LIKE regexp_replace('($.errorCode = "*UnauthorizedOperation") || ($.errorCode = "AccessDenied*")', '\s', '', 'g')
+      AND regexp_replace(configuration->>'filterPattern', '\s', '', 'g') LIKE regexp_replace('%' || '$.errorCode = "*UnauthorizedOperation") || ($.errorCode = "AccessDenied*"' || '%', '\s', '', 'g')
   ),
   get_alarm_topic AS (
     SELECT regexp_replace(jsonb_array_elements(configuration->'alarmActions')::TEXT, '\"', '', 'g') AS topic_arn
