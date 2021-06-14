@@ -20,7 +20,7 @@ sql: >
     WHERE trails.supplementaryConfiguration->'trailDetails'->'trail'->>'s3BucketName' = buckets.resourceName
   ),
   check_buckets_grantee_uri AS (
-    SELECT arn, bucket_grants->'grantee'
+    SELECT arn
     FROM get_buckets_acl_configs
     WHERE bucket_grants->'grantee'->>'uri' IS NOT NULL AND
       (bucket_grants->'grantee'->>'uri' = 'http://acs.amazonaws.com/groups/global/AllUsers' OR
