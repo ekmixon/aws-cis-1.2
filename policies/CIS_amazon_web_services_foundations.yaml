@@ -30,12 +30,15 @@ rules:
   - 8f0d6f07-5c32-4a25-8b25-6ca4c2198197 # CIS-1.22
   - f6585eff-ff81-4d39-a9fe-f883feb6e531 # CIS-2.1
   - 6b1fad69-b9d4-4418-8dc1-7b1a7d6cf56d # CIS-2.2
+  - db49efe5-c020-4165-9149-9cbb3cedfbf0 # CIS-2.3
   - 3f2a6c76-edd8-4e6f-b0e1-5213acbfebda # CIS-2.4
   - 16c679d8-f2c5-4753-80f7-8cbc08d0c5a2 # CIS-2.5
   - 10b14b8e-f19d-4f8e-bcf1-d9a7b701ea59 # CIS-2.6
   - 0d54f388-7ebd-435d-8d92-ae5843d938d4 # CIS-2.7
   - 379ea727-2b8c-420b-9933-3a157707b931 # CIS-2.8
+  - a93a546f-00c5-4a6d-8266-3e41480d400e # CIS-2.9
   - f3ffdd5a-cb43-4da3-9036-222cfd294a2c # CIS-4.1
   - c98904c9-2f0e-4d95-8bfd-b402163b34df # CIS-4.2
   - 55b62465-1bdb-4388-9adf-b88d5e83812b # CIS-4.3
+  - 0c0799c4-a539-4202-8235-8d51b321db97 # CIS-4.4
 version: 0.1.3
