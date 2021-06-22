@@ -10,9 +10,10 @@ description: >
 severity: high
 enabled: true
 sql: >
-  SELECT arn
-  FROM awsiampolicy
-  WHERE resourceName = 'AWSSupportAccess'
+  SELECT asset_id
+  FROM assets
+  WHERE resource_type = 'AWS::IAM::Policy'
+    AND resource_name = 'AWSSupportAccess'
     AND configuration->>'attachmentCount' = '0';
 remediation: >
   Using the Amazon unified command line interface:

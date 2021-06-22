@@ -12,11 +12,12 @@ description: >
 severity: medium
 enabled: true
 sql: >
-  SELECT arn
-  FROM awsiamaccount
-  WHERE configuration->>'AccountMFAEnabled' = '0'
-    OR (json_array_length((supplementaryconfiguration->'virtualMFADevices'->'virtualMFADevices')::JSON) = 1
-        AND supplementaryconfiguration->'virtualMFADevices'->'virtualMFADevices'->0->>'serialNumber' != ('arn:aws:iam::' || regexp_replace(arn, '.*:', '') || ':mfa/root-account-mfa-device'));
+  SELECT asset_id
+  FROM assets
+  WHERE resource_type = 'AWS::IAM::Account'
+    AND (configuration->>'AccountMFAEnabled' = '0'
+         OR (json_array_length((supplementary_configuration->'virtualMFADevices'->'virtualMFADevices')::JSON) = 1
+             AND supplementary_configuration->'virtualMFADevices'->'virtualMFADevices'->0->>'serialNumber' != ('arn:aws:iam::' || regexp_replace(asset_id, '.*:', '') || ':mfa/root-account-mfa-device')));
 remediation: >
   Perform the following to establish a hardware MFA for the root account:
     1. Sign in to the AWS Management Console and open the IAM console at

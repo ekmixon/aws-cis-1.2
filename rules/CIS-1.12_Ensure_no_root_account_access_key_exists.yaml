@@ -10,11 +10,12 @@ description: >
 severity: high
 enabled: true
 sql: >
-  SELECT arn
-  FROM awsiamcredentialsreport
-  WHERE resourcename = '<root_account>'
-    AND (configuration->>'access_key_1_active' = 'true'
-      OR configuration->>'access_key_2_active' = 'true');
+  SELECT asset_id
+  FROM assets
+  WHERE resource_type = 'AWS::IAM::CredentialsReport'
+    AND (resource_name = '<root_account>'
+         AND (configuration->>'access_key_1_active' = 'true'
+              OR configuration->>'access_key_2_active' = 'true'));
 remediation: >
   1. Sign in to the AWS Management Console as Root and open the IAM console at
     https://console.aws.amazon.com/iam/.

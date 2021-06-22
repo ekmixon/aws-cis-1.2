@@ -10,10 +10,11 @@ description: >
 severity: high
 enabled: true
 sql: >
-  SELECT arn
-  FROM awsiamuser
-  WHERE supplementaryConfiguration->>'attachedPolicies' != '[]'
-    OR supplementaryConfiguration->>'userPolicies' != '[]' ;
+  SELECT asset_id
+  FROM assets
+  WHERE resource_type = 'AWS::IAM::User'
+    AND (supplementary_configuration->>'attachedPolicies' != '[]'
+         OR supplementary_configuration->>'userPolicies' != '[]');
 remediation: >
   Perform the following to create an IAM group and assign a policy to it
     1. Sign in to the AWS Management Console and open the IAM console at
