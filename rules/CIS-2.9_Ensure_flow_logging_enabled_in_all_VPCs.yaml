@@ -11,14 +11,16 @@ description: >
 severity: high
 enabled: true
 sql: >
-  SELECT arn
-  FROM awsec2vpc
-  WHERE arn NOT IN
-      (SELECT arn
+  SELECT asset_id
+  FROM assets
+  WHERE resource_type = 'AWS::EC2::VPC'
+    AND asset_id NOT IN
+      (SELECT asset_id
        FROM
-         (SELECT arn,
-                 jsonb_array_elements(supplementaryconfiguration->'flowLogs'->'flowLogs') AS flow_logs
-          FROM awsec2vpc) flow_logs_table
+         (SELECT asset_id,
+                 jsonb_array_elements(supplementary_configuration->'flowLogs'->'flowLogs') AS flow_logs
+          FROM assets
+          WHERE resource_type = 'AWS::EC2::VPC') flow_logs_table
        WHERE flow_logs->>'flowLogStatus' ILIKE 'ACTIVE'
          AND (flow_logs->>'trafficType' ILIKE 'ALL'
               OR flow_logs->>'trafficType' ILIKE 'REJECT'));

@@ -11,9 +11,10 @@ description: >
 severity: high
 enabled: true
 sql: >
-  SELECT arn
-  FROM awscloudtrailtrail
-  WHERE supplementaryConfiguration->'trailDetails'->'trail'->'logFileValidationEnabled' != 'true';
+  SELECT asset_id
+  FROM assets
+  WHERE resource_type = 'AWS::CloudTrail::Trail'
+    AND supplementary_configuration->'trailDetails'->'trail'->'logFileValidationEnabled' != 'true';
 remediation: >
   Perform the following to enable log file validation on a given trail:
   Via the management Console
