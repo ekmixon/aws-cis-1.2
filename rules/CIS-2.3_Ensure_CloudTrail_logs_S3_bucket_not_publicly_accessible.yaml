@@ -17,7 +17,9 @@ sql: >
         jsonb_array_elements(buckets.supplementary_configuration->'bucketACLConfiguration'->'grants') AS bucket_grants,
         (buckets.supplementary_configuration->>'bucketPolicy')::JSONB as bucket_policy
     FROM assets trails, assets buckets
-    WHERE trails.supplementary_configuration->'trailDetails'->'trail'->>'s3BucketName' = buckets.resource_name
+    WHERE trails.resource_type = 'AWS::CloudTrail::Trail' AND
+      buckets.resource_type = 'AWS::S3::Bucket' AND
+      trails.supplementary_configuration->'trailDetails'->'trail'->>'s3BucketName' = buckets.resource_name
   ),
   check_buckets_grantee_uri AS (
     SELECT asset_id
