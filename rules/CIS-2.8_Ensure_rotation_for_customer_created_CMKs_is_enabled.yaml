@@ -13,9 +13,10 @@ description: >
 severity: high
 enabled: true
 sql: >
-  SELECT arn
-  FROM awskmskey
-  WHERE supplementaryConfiguration->'rotation'->'keyRotationEnabled' != 'true';
+  SELECT asset_id
+  FROM assets
+  WHERE resource_type = 'AWS::Kms::Key'
+    AND supplementary_configuration->'rotation'->'keyRotationEnabled' != 'true';
 remediation: >
   Via the Management Console:
     1. Sign in to the AWS Management Console and open the IAM console at

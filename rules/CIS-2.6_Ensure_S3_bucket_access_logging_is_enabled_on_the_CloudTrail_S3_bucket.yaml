@@ -12,13 +12,15 @@ description: >
 severity: high
 enabled: true
 sql: >
-  SELECT arn
-  FROM awscloudtrailtrail cloudtrail
-  WHERE NOT EXISTS
+  SELECT asset_id
+  FROM assets cloudtrail
+  WHERE resource_type = 'AWS::CloudTrail::Trail'
+    AND NOT EXISTS
       (SELECT *
-       FROM awss3bucket s3bucket
-       WHERE s3bucket.resourceName = cloudtrail.supplementaryconfiguration->'trailDetails'->'trail'->>'s3BucketName'
-         AND s3bucket.supplementaryConfiguration->'bucketLoggingConfiguration'->'loggingEnabled' != 'null');
+       FROM assets s3bucket
+       WHERE resource_type = 'AWS::S3::Bucket'
+         AND s3bucket.resource_name = cloudtrail.supplementary_configuration->'trailDetails'->'trail'->>'s3BucketName'
+         AND s3bucket.supplementary_configuration->'bucketLoggingConfiguration'->'loggingEnabled' != 'null');
 remediation: >
   Perform the following to enable S3 bucket logging:
   Via the Management Console

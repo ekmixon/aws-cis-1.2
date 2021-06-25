@@ -10,20 +10,27 @@ description: >
 severity: high
 enabled: true
 sql: >
-  SELECT arn
-  FROM
-    (SELECT arn,
-            jsonb_array_elements(ingress_rule->'ipRanges') AS ip_ranges
-     FROM (awsec2securitygroup AS sg1
-           LEFT JOIN
-             (SELECT arn AS arn2,
-                     jsonb_array_elements(configuration->'ipPermissions') AS ingress_rule
-              FROM awsec2securitygroup) ip_permissions ON sg1.arn = ip_permissions.arn2) ingress_rules
-     WHERE ((ingress_rules.ingress_rule->>'fromPort')::INT <= 3389
-            AND (ingress_rules.ingress_rule->>'toPort')::INT >= 3389)
-       OR ingress_rules.ingress_rule->>'fromPort' IS NULL
-       OR ingress_rules.ingress_rule->>'toPort' IS NULL ) tmp_query
-  WHERE ip_ranges->>'cidrIp' = '0.0.0.0/0' ;
+  WITH
+  get_ip_permissions AS (
+    SELECT asset_id, jsonb_array_elements(configuration->'ipPermissions') AS permissions
+    FROM assets
+    WHERE resource_type = 'AWS::EC2::SecurityGroup'
+  ),
+  get_ip_ranges AS (
+    SELECT asset_id, jsonb_array_elements(permissions->'ipRanges') AS ip_ranges
+    FROM get_ip_permissions
+    WHERE ((permissions->>'fromPort')::INT <= 3389
+              AND (permissions->>'toPort')::INT >= 3389)
+         OR permissions->>'fromPort' IS NULL
+         OR permissions->>'toPort' IS NULL
+  ),
+  get_cidrIp AS (
+    SELECT asset_id
+    FROM get_ip_ranges
+    WHERE ip_ranges->>'cidrIp' = '0.0.0.0/0'
+  )
+
+  SELECT * FROM get_cidrIp;
 remediation: >
   Perform the following to implement the prescribed state:
     1. Login to the AWS Management Console at

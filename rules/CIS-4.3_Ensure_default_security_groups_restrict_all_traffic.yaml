@@ -16,9 +16,10 @@ description: >
 severity: high
 enabled: true
 sql: >
-  SELECT arn
-  FROM awsec2securitygroup
-  WHERE resourcename = 'default'
+  SELECT asset_id
+  FROM assets
+  WHERE resource_type = 'AWS::EC2::SecurityGroup'
+    AND resource_name = 'default'
     AND (jsonb_array_length(configuration->'ipPermissions') > 0
          OR jsonb_array_length(configuration->'ipPermissionsEgress') > 0);
 remediation: >

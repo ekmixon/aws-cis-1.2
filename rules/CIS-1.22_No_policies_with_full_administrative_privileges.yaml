@@ -13,24 +13,27 @@ description: >
 severity: high
 enabled: true
 sql: >
-  SELECT arn
-  FROM awsiampolicy AS policies
+  SELECT asset_id
+  FROM assets
   LEFT JOIN
-    (SELECT arn AS arn1,
-            jsonb_array_elements((policies.supplementaryconfiguration->'attachedPolicies'->>'policyDocument')::JSONB->'Statement') AS statement1
-     FROM awsiampolicy policies
-     WHERE jsonb_typeof((policies.supplementaryconfiguration->'attachedPolicies'->>'policyDocument')::JSONB->'Statement') = 'array' ) multiple_statement_policies ON policies.arn = multiple_statement_policies.arn1
+    (SELECT asset_id AS arn1,
+            jsonb_array_elements((assets.supplementary_configuration->'attachedPolicies'->>'policyDocument')::JSONB->'Statement') AS statement1
+     FROM assets
+     WHERE resource_type = 'AWS::IAM::Policy'
+       AND jsonb_typeof((assets.supplementary_configuration->'attachedPolicies'->>'policyDocument')::JSONB->'Statement') = 'array' ) multiple_statement_policies ON assets.asset_id = multiple_statement_policies.arn1
   LEFT JOIN
-    (SELECT arn AS arn2,
-            (policies.supplementaryconfiguration->'attachedPolicies'->>'policyDocument')::JSONB->'Statement' AS statement2
-     FROM awsiampolicy policies
-     WHERE jsonb_typeof((policies.supplementaryconfiguration->'attachedPolicies'->>'policyDocument')::JSONB->'Statement') = 'object' ) single_statement_policies ON policies.arn = single_statement_policies.arn2
-  WHERE (statement1->>'Effect' = 'Allow'
-         AND statement1->>'Action' = '*'
-         AND statement1->>'Resource' = '*')
-    OR (statement2->>'Effect' = 'Allow'
-        AND statement2->>'Action' = '*'
-        AND statement2->>'Resource' = '*');
+    (SELECT asset_id AS arn2,
+            (assets.supplementary_configuration->'attachedPolicies'->>'policyDocument')::JSONB->'Statement' AS statement2
+     FROM assets
+     WHERE resource_type = 'AWS::IAM::Policy'
+       AND jsonb_typeof((assets.supplementary_configuration->'attachedPolicies'->>'policyDocument')::JSONB->'Statement') = 'object' ) single_statement_policies ON assets.asset_id = single_statement_policies.arn2
+  WHERE resource_type = 'AWS::IAM::Policy'
+    AND ((statement1->>'Effect' = 'Allow'
+          AND statement1->>'Action' = '*'
+          AND statement1->>'Resource' = '*')
+         OR (statement2->>'Effect' = 'Allow'
+             AND statement2->>'Action' = '*'
+             AND statement2->>'Resource' = '*'));
 remediation: >
   Using the GUI, perform the following to detach the policy that has full administrative
   privileges:
